@@ -47,7 +47,7 @@ $ sudo java -jar project-sample-0.0.1-SNAPSHOT.jar
 - EC2 인스턴스를 띄우듯이 ELB 서버 또한 띄워야하며 고유 IP 또한 지니고 있다 (다만 탄력적 IP 는 설정할 필요 없다)
 - User 는 ELB 로 접속함으로, 도메인도 ELB 에 적용하고 HTTPS 도 ELB 에 적용시켜야 한다
 
-### ELB 팅
+### ELB 세팅
 1. Region 선택
 2. 로드 밸런서 유형: Application Load Balancer (HTTPS 활용 가능)
 3. 체계: 인터넷 경계, IP: IPv4
@@ -152,5 +152,57 @@ EC2 에서 RDS 와 잘 연결되는지 확인 가능
 
 
 ## ✅ S3 (파일 및 이미지 업로드)
+- 버킷(Bucket): 저장소 / 객체(Object): 업로드 된 파일
+- ACL 비활성화됨, 모든 퍼블릭 엑세스 차단 해제 (모든 사용자가 다운로드 할 수 있어야 한다)
+
+### 버킷에 GetObject 정책 추가하기
+- 모든 서비스 > S3 > GetObject > 리소스 추가
+- `arn:aws:s3:::{버킷이름입력}/{오브젝트이름입력}`
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid":"Statement1",
+      "Effect":"Allow",
+      "Principal":"*",
+      "Action":"s3:GetObject",
+      "Resource":"arn:aws:s3:::instagram-static-files/*",
+    }
+  ]
+}
+```
+
+### 버킷에 EC2 에서 이미지 업로드 허용하기 
+- AWS 메뉴 IAM (Identity and Access Management) 접속
+- 사용자 생성 > 직접 정책 연결 > 권한 정책 > AmazonS3FullAccess (모든 권한 획득하기)
+- 보안 자격 증명 > 액세스 키 만들기 > AWS 외부에서 실행되는 애플리케이션 (Spring Boot 같은게 모두 AWS 외부에서 실행되는 애플리케이션이다) 
+- 액세스 키 저장해두기 
+
+#### application.yml
+```
+server:
+	port: 80
+spring:
+	datasource:
+		url: jdbc:mysql://_________:3306/instagram # RDS 인스턴스 엔드포인트
+		username: ______ # RDS 마스터 사용자 이름
+		password: ______ # RDS 마스터 암호
+		driver-class-name: com.mysql.cj.jdbc.Driver
+	jpa:
+		hibernate:
+			ddl-auto: create
+		show-sql: true
+	cloud:
+		aws:
+			credentials:
+				access-key: _________ # IAM 통해서 발급받은 액세스 키
+				secret-key: _________ # IAM 통해서 발급받은 비밀 액세스 키
+			s3:
+				bucket: _______ # 생성한 S3 버킷명
+			region:
+				static: ap-northeast-2
+```
+
 
 ## ✅ Cloudfront
