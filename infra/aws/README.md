@@ -1,6 +1,5 @@
 # AWS
 
-
 ## ✅ EC2 (서버 배포)
 - EC2 = 컴퓨터 한 대
 - Region(데이터센터 위치) 선택하기: 서비스 사용자들의 위치로 선택하면 된다. (내 위치 아님!)
@@ -48,7 +47,7 @@ $ sudo java -jar project-sample-0.0.1-SNAPSHOT.jar
 - EC2 인스턴스를 띄우듯이 ELB 서버 또한 띄워야하며 고유 IP 또한 지니고 있다 (다만 탄력적 IP 는 설정할 필요 없다)
 - User 는 ELB 로 접속함으로, 도메인도 ELB 에 적용하고 HTTPS 도 ELB 에 적용시켜야 한다
 
-### ELB 셋팅
+### ELB 팅
 1. Region 선택
 2. 로드 밸런서 유형: Application Load Balancer (HTTPS 활용 가능)
 3. 체계: 인터넷 경계, IP: IPv4
@@ -87,6 +86,69 @@ $ sudo java -jar project-sample-0.0.1-SNAPSHOT.jar
 
 
 ## ✅ RDS (데이터베이스 연결)
+User -> ELB -> EC2 -> RDS
+
+### 왜 EC2 에 DB(MySQL)를 직접 설치하지 않나요?
+- 백엔드 서버 터져서 EC2 죽으면 DB 도 같이 죽는다
+- EC2 여러 개 중에 하나에 설치할 바에는 하나 새로 만들어서 따로 관리하는게 편할 수 있다
+- 부가적인 여러 기능들 제공(자동백업, 모니터링, 다중 AZ 등)
+
+### RDS 세팅
+1. Region 선택
+2. 엔진선택: MySQL / 템플릿: 프리티어
+3. 마스터 사용자 이름 및 암호 설정
+4. 스토리지: 범용 SSD(gp3) / 20GiB
+5. 퍼블릭 엑세스: 예
+
+### 보안그룹 설정
+- EC2 > 보안그룹 > 보안그룹 생성
+- 인바운드 규칙: 유형: MYSQL/Aurora / TCP / 3306 / 소스: Any IP 0.0.0.0/0
+- RDS > DB 인스턴스 수정 > 연결 > 보안그룹 선택
+
+### 파라미터 그룹 추가 
+- DB 의 여러 속성들을 변경해줄 수 있다 
+- RDS > 파라미터 그룹 > 파라미터 그룹 생성 (패밀리 mysql8.0)
+1. utf8mb4 (인코딩): character_set_client / character_set_connection / character_set_database / character_set_filesystem / character_set_results / character_set_server
+2. utf8mb4_unicode_ci (정렬방식): collation_connection / collation_server
+3. Asia/Seoul (데이터베이스 시간) : time_zone
+
+- RDS 들어가서 수정
+- 추가구성 > DB 파라미터 그룹 > 직접 설정한 그룹으로 바꿔주기
+- 재부팅 해야 적용된다
+
+### RDS 접속하기 
+- DB 관리툴 종류: Workbench / Datagrip / DBeaver 
+- 엔드포인트 + 포트 정보를 이용하여 관리툴에서 Connect
+- Server Host(엔드포인트) + Port / Master 아이디 비밀번호로 연결 가능
+
+### Spring Boot 서버에서 RDS 연결하기 
+#### application.yml
+```
+server:
+	port: 80
+spring:
+	datasource:
+		url: jdbc:mysql://___________:3306/instagram # RDS 인스턴스 엔드포인트
+		username: ______ # RDS 마스터 사용자 이름
+		password: ______ # RDS 마스터 암호
+		driver-class-name: com.mysql.cj.jdbc.Driver
+	jpa:
+		hibernate:
+			ddl-auto: update
+		show-sql: true
+```
+실제로는 `.gitignore` 로 버전관리에 제외해야 한다 
+
+```
+$ sudo lsof -i:80 # 80번 포트에서 실행되는 프로세스 확인
+$ sudo kill {PID 값} # 80번 포트에서 실행되는 프로세스가 있다면 종료
+$ cd ~/aws-rds-springboot
+$ ./gradlew clean build -x test # 스프링 부트 프로젝트 빌드
+$ cd build/libs
+$ sudo nohup java -jar aws-rds-springboot-0.0.1-SNAPSHOT.jar & # JAR 파일 실행
+$ sudo lsof -i:80 # 80번 포트에서 실행되는 프로세스 조회
+```
+EC2 에서 RDS 와 잘 연결되는지 확인 가능 
 
 
 ## ✅ S3 (파일 및 이미지 업로드)
