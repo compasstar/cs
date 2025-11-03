@@ -205,4 +205,44 @@ spring:
 ```
 
 
-## ✅ Cloudfront
+## ✅ S3, CloudFront (웹 페이지 배포)
+
+### CloudFront 란? 
+- CDN(Content Delivery Network) 서비스이다. 원 저장소는 S3 이지만, 전세계 곳곳에 컨텐츠의 복사본을 복사하여 임시 저장소에 구축한다. 덕분에 빠르게 컨텐츠를 전송할 수 있다.
+- HTTPS 를 적용시키는 기능 또한 제공한다
+- Users -> CloudFront -> S3
+
+### S3 버킷 생성하기
+- ACL 비활성화됨, 모든 퍼블릭 엑세스 차단 해제 (모든 사용자가 다운로드 할 수 있어야 한다)
+
+### 버킷에 GetObject 정책 추가하기
+- 모든 서비스 > S3 > GetObject > 리소스 추가
+- - `arn:aws:s3:::instagram-web-page/*`
+- `arn:aws:s3:::{버킷이름입력}/{오브젝트이름입력}`
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid":"Statement1",
+	  "Principal": "*",
+	  "Effect":"Allow",
+      "Action": ["s3:GetObject"],
+      "Resource":["arn:aws:s3:::instragram-web-page/*"]
+    }
+  ]
+}
+```
+
+### S3 에 웹서비스 업로드하기
+- 객체 메뉴에서 파일 드래그해서 업로드하면 됨 테스트로 index.html 넣어보자
+- 속성 메뉴에서 '정적 웹 사이트 호스팅' 활성화 -> 인덱스 문서에 index.html 넣어주자
+- 주소가 뜬다. 해당 주소로 이동하면 웹 페이지 접속 가능
+
+### CloudFront 생성하기
+- 배포 > 생성
+- 원본 도메인: S3 호스팅한 웹 서비스 주소 입력, 웹 사이트 엔드포인트 사용 버튼 클릭
+- Redirect HTTP to HTTPS 선택
+- 보안 보호 비활성화 선택 (비활성화 되어도 보안 충분)
+- 가격 분류: 북미, 유럽, 아시아, 중동 및 아프리카에서 사용
+- 기본값 루트 객체: index.html 
