@@ -3,8 +3,8 @@
 #### 전체 구조
 1. Client
 2. CDN (CNAME Web 주소로 설정)  
-3. Web(S3) (https://domain.com)  <-- 도메인 Route53 / HTTPS (AWS Certificate Manager) / 파일 및 이미지(S3)
-4. 로드밸런서(ELB)(https://api.domain.com) <-- 도메인 Route53  / HTTPS (ACM) 적용 
+3. Web(S3) (`https://domain.com`)  <-- 도메인 Route53 / HTTPS (AWS Certificate Manager) / 파일 및 이미지(S3)
+4. 로드밸런서(ELB)(`https://api.domain.com`) <-- 도메인 Route53  / HTTPS (ACM) 적용 
 5. Server(EC2) <-- IP 주소로 연결
 6. DB(RDS) <-- IP 주소로 연결
 
