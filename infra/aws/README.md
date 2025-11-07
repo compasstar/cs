@@ -1,5 +1,14 @@
 # AWS
 
+#### 전체 구조
+1. Client
+2. CDN (CNAME Web 주소로 설정)  
+3. Web(S3) (https://domain.com)  <-- 도메인 Route53 / HTTPS (AWS Certificate Manager) / 파일 및 이미지(S3)
+4. 로드밸런서(ELB)(https://api.domain.com) <-- 도메인 Route53  / HTTPS (ACM) 적용 
+5. Server(EC2) <-- IP 주소로 연결
+6. DB(RDS) <-- IP 주소로 연결
+
+
 ## ✅ EC2 (서버 배포)
 - EC2 = 컴퓨터 한 대
 - Region(데이터센터 위치) 선택하기: 서비스 사용자들의 위치로 선택하면 된다. (내 위치 아님!)
@@ -235,7 +244,7 @@ spring:
 ```
 
 ### S3 에 웹서비스 업로드하기
-- 객체 메뉴에서 파일 드래그해서 업로드하면 됨 테스트로 index.html 넣어보자
+- 객체 메뉴에서 파일 드래그해서 업로드하면 됨 index.html 을 포함한 build 폴더 안의 모든 내용물을 업로드하자 
 - 속성 메뉴에서 '정적 웹 사이트 호스팅' 활성화 -> 인덱스 문서에 index.html 넣어주자
 - 주소가 뜬다. 해당 주소로 이동하면 웹 페이지 접속 가능
 
@@ -245,4 +254,15 @@ spring:
 - Redirect HTTP to HTTPS 선택
 - 보안 보호 비활성화 선택 (비활성화 되어도 보안 충분)
 - 가격 분류: 북미, 유럽, 아시아, 중동 및 아프리카에서 사용
-- 기본값 루트 객체: index.html 
+- 기본값 루트 객체: index.html
+
+### 도메인 연결하기, HTTPS 적용하기
+#### AWS Certificate Manager(ACM) 메뉴
+- 지역을 미국 동부(버지니아 북부)로 변경해서 발급받아야 한다 (AWS 지침)
+- 인증서 요청, 도메인 이름 (jscode-edu.link) -> 인증서가 생성되었다
+- Route 53에서 DNS 레코드 생성
+#### CloudFront 메뉴
+- 설정 편집에서 대체 도메인 이름(CNAME) jscode-edu.link 입력
+- 사용자 정의 SSL 인증서에서 생성한 인증서 입력 
+#### Route 53 메뉴
+- 레코드 생성: 레코드 이름: jscode-edu.link / 트래픽 라우팅 대상: CloudFront 배포에 대한 별칭 / 배포 선택하기 
