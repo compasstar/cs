@@ -10,7 +10,7 @@
 4. Spring Boot 서버 빌드 및 재구동
 
 ### git 계정정보저장
-> 명령어 입력하고 한 번만 인증하면 git pull 할 때 자동계정인증
+> 명령어 입력하고 한 번만 인증하면 git pull 할 때 자동계정인증 (미리 EC2 에서 인증해두자) 
 ```
 git config --global credential.helper store
 ```
