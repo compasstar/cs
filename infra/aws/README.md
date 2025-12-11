@@ -54,8 +54,15 @@ server:
 ```
 $ ./gradlew clean build # 기존 빌드 파일 삭제 후 새롭게 JAR 빌드
 $ cd ~/project-sample/build/libs
-$ sudo java -jar project-sample-0.0.1-SNAPSHOT.jar
+$ nohup java -jar project-sample-0.0.1-SNAPSHOT.jar &
+$ sudo lsof -i:8080 # 서버 실행되는지 확인
 ```
+
+> 서버 종료
+```
+sudo fuser -k -n tcp 8080 #Port 8080 종료 
+```
+
 
 ## ✅ Route53 (도메인 연결)
 1. 도메인 구매 (1년 5$ 정도)
