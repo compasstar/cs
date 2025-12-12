@@ -134,4 +134,44 @@ jobs:
             rm -rf /home/ubuntu/instagram-server/tobe
 ```
 
+## :white_check_mark: 프론트엔드 S3 에 CI/CD 적용하기
+
+### deploy.yml
+```
+name: Deploy To S3
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v4
+
+      - name: AWS Resouce에 접근할 수 있게 AWS credentials 설정
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: S3 기존 파일들 전체 삭제 후 새로 업로드
+        run: |
+          aws s3 rm --recursive s3://instagram-web
+          aws s3 cp ./ s3://instagram-web/ --recursive
+
+      - name: Cloudfront 캐시 무효화
+        run: aws cloudfront create-invalidation --distribution-id E3HAY1U7NXFL6Q --paths "/*"  # 클라우드 프론트 ID 값 붙여넣기
+
+```
+
+### IAM 사용자 생성
+- IAM > 사용자 > 사용자생성
+- 권한 정책: AmazonS3FullAccess, CloudFrontFullAccess 후 생성 완료
+- '보안 자격 증명' 메뉴 > 엑세스 키 만들기 : AWS 외부에서 실행되는 애플리케이션 선택 > (액세스 키/비밀 액세스 키) 생성 완료
+- (액세스 키/비밀 액세스 키) Github Secrets 에 저장하기 
 
