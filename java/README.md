@@ -92,3 +92,121 @@ intUnaryOperator.applyAsInt(10); // 1000
 
 // 기타, IntConsumer, IntSupplier, IntPredicate
 ```
+
+
+## ✅ Stream API
+
+### Stream 생성
+
+#### 1. 컬렉션 생성
+```java
+List<String> list = List.of("a", "b", "c");
+Stream<String> stream1 = list.stream();
+```
+
+#### 2. 배열 생성
+```java
+String[] arr = {"a", "b", "c"};
+Stream<String> stream2 = Arrays.stream(arr);
+```
+
+#### 3. Stream.of() 사용
+```java
+Stream<String> stream3 = Stream.of("a", "b", "c");
+```
+
+#### 4. 무한 스트림 생성 - iterate()
+```java
+Stream<Integer> infiniteStream = Stream.iterate(0, n -> n + 2);
+infiniteStream.limit(3).forEach(System.out::println);
+```
+
+#### 5. 무한 스트림 생성 - generate()
+```java
+Stream<Double> randomStream = Stream.generate(Math::random);
+randomStream.limit(3).forEach(System.out::println);
+```
+
+
+### Stream 중간 연산
+
+#### 1. filter
+```java
+numbers.stream()
+        .filter(n -> n % 2 == 0)
+        .forEach(n -> System.out.print(n + " "));
+```
+
+#### 2. map
+```
+numbers.stream()
+        .map(n -> n * n)
+        .forEach(n -> System.out.print(n + " "));
+```
+
+#### 3. distinct (중복제거)
+```
+numbers.stream()
+        .distinct()
+        .forEach(n -> System.out.print(n + " "));
+```
+
+#### 4. sorted (기본정렬)
+```
+Stream.of(3, 1, 4, 1, 5, 9, 2, 6, 5)
+        .sorted()
+        .forEach(n -> System.out.print(n + " "));
+```
+
+#### 5. sorted (커스텀 정렬)
+
+```
+Stream.of(3, 1, 4, 1, 5, 9, 2, 6, 5)
+        .sorted(Comparator.reverseOrder())
+        .forEach(n -> System.out.print(n + " "));
+```
+
+
+#### 6. peek (동작 확인용)
+```
+numbers.stream()
+        .peek(n -> System.out.print("before: " + n + ", "))
+        .map(n -> n * n)
+        .peek(n -> System.out.print("after: " + n + ", "))
+        .limit(5)
+        .forEach(n -> System.out.println("최종값: " + n));
+```
+
+#### 7. limit (개수 제한)
+```
+numbers.stream()
+        .limit(5)
+        .forEach(n -> System.out.println(n + " "));
+```
+
+#### 8. skip (처음 n개 요소 건너뛰기)
+```
+numbers.stream()
+        .skip(5)
+        .forEach(n -> System.out.println(n + " "));
+```
+
+#### 9. takeWhile (조건을 만족하는 동안만 선택)
+```
+//1, 2, 3, 4, 5, 1, 2, 3
+numbers.stream()
+        .takeWhile(n -> n < 5)
+        .forEach(n -> System.out.println(n + " "));
+//1, 2, 3, 4
+```
+
+#### 10. dropWhile (조건을 만족하는 동안 건너뛰기)
+```
+//1, 2, 3, 4, 5, 1, 2, 3
+numbers.stream()
+        .dropWhile(n -> n < 5)
+        .forEach(n -> System.out.println(n + " "));
+System.out.println("\n");
+//5, 1, 2, 3
+```
+
