@@ -1,11 +1,37 @@
 
 ## ✅ 즉시평가와 지연평가
 
+### 즉시평가
 ```java
-logger.setDebug(false);
-logger.debug(100 + 200);
+public void debug(Object message) {
+    if (isDebug) {
+        System.out.println("[DEBUG] " + message);
+    }
+}
+
+public static void main(String[] args) {
+    Logger logger = new Logger();
+    logger.setDebug(false);
+    logger.debug(100 + 200);
+}
 ```
-디버그 모드를 껐기에, 두번째 줄의 로그는 출력되지 않는다. 하지만, 그럼에도 `100 + 200` 연산은 실행된다. '즉시평가' 이기 때문이다. '지연평가'를 사용하면 `100 + 200` 연산을 막을 수 있다.
+디버그 모드를 껐기에, 로그는 출력되지 않는다. 하지만, 그럼에도 `100 + 200` 연산은 실행된다. '즉시평가' 이기 때문이다. '지연평가'를 사용하면 `100 + 200` 연산을 막을 수 있다.
+
+### 지연평가
+```java
+public void debug(Supplier<?> supplier) {
+    if (isDebug) {
+        System.out.println("[DEBUG] " + supplier.get());
+    }
+}
+
+public static void main(String[] args) {
+    Logger logger = new Logger();
+    logger.setDebug(false);
+    logger.debug(() -> 100 + 200);
+}
+```
+람다(Supplier)로 파라미터를 전달하면 `supplier.get()` 이 실행이 되지 않기에 로그가 남지 않는다. 
 
 
 ## ✅ PECS (Producer Extends Consumer Super) - 제네릭 와일드카드
